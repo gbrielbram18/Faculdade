@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Painel de Atendimento</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <style>
+    body {
+      background-color: #f4f4f4;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    h1 {
+      font-size: 2.5em;
+      font-weight: bold;
+      color: #212121;
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    .card {
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      border-radius: 8px;
+      overflow: hidden;
+      border: none;
+    }
+    .card-header {
+      font-size: 1.2em;
+      font-weight: bold;
+      padding: 15px;
+      color: #000000;
+    }
+    .card-body {
+      padding: 20px;
+    }
+    .ticket {
+      background-color: #e0e0e0;
+      border: 2px solid #b0b0b0;
+      border-radius: 6px;
+      padding: 10px 15px;
+      margin: 5px;
+      font-size: 1.2em;
+      font-weight: bold;
+      color: #000000;
+      display: inline-block;
+    }
+    #atenderBtn {
+      background-color: #dcdcdc;
+      color: #000000;
+      border: 2px solid #999999;
+      font-weight: bold;
+      padding: 10px 20px;
+      border-radius: 6px;
+      transition: all 0.3s ease;
+    }
+    #atenderBtn:hover {
+      background-color: #b0b0b0;
+      color: #000000;
+    }
+    .carousel video {
+      border-radius: 8px;
+      max-height: 300px;
+      object-fit: cover;
+    }
+  </style>
+</head>
+<body>
+  <div class="container-fluid p-4">
+    <h1>🎫 Painel de Atendimento</h1>
+    <div class="row">
+
+      <!-- Carrossel de Vídeos -->
+      <div class="col-md-6">
+        <div class="card" style="background-color: #e8f0fe;">
+          <div class="card-header">🎥 Vídeo com Carrossel de Mídia</div>
+          <div class="card-body">
+            <div id="videoCarousel" class="carousel slide" data-bs-ride="carousel">
+              <div class="carousel-inner">
+                <div class="carousel-item active">
+                  <video class="d-block w-100" autoplay loop muted>
+                    <source src="video1.mp4" type="video/mp4" />
+                  </video>
+                </div>
+                <div class="carousel-item">
+                  <video class="d-block w-100" autoplay loop muted>
+                    <source src="video2.mp4" type="video/mp4" />
+                  </video>
+                </div>
+                <div class="carousel-item">
+                  <video class="d-block w-100" autoplay loop muted>
+                    <source src="video3.mp4" type="video/mp4" />
+                  </video>
+                </div>
+              </div>
+              <button class="carousel-control-prev" type="button" data-bs-target="#videoCarousel" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon"></span>
+              </button>
+              <button class="carousel-control-next" type="button" data-bs-target="#videoCarousel" data-bs-slide="next">
+                <span class="carousel-control-next-icon"></span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Painel de Atendimento -->
+      <div class="col-md-6">
+        <div class="card" style="background-color: #d0f0d0;">
+          <div class="card-header">📢 Painel de Atendimento das Senhas</div>
+          <div class="card-body">
+            <button id="atenderBtn" class="btn mb-3">Atender Próxima Senha</button>
+            <h5>Senha Atual:</h5>
+            <div id="currentTicket" class="ticket">--</div>
+            <h5 class="mt-3">Senhas Atendidas:</h5>
+            <div id="attendedTickets"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Painel Atual -->
+      <div class="col-md-12 mt-4">
+        <div class="card" style="background-color: #fce4ec;">
+          <div class="card-header">🕒 Painel Atual (Fila de Espera)</div>
+          <div class="card-body">
+            <h5>Próxima Senha:</h5>
+            <div id="nextTicket" class="ticket">--</div>
+            <h5 class="mt-3">Fila de Senhas:</h5>
+            <div id="queueTickets" class="d-flex flex-wrap"></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    let queueTickets = [];
+    let attendedTickets = [];
+
+    function generateTicket() {
+      const ticket = Math.floor(Math.random() * 100);
+      return ticket.toString().padStart(2, '0');
+    }
+
+    for (let i = 0; i < 10; i++) {
+      queueTickets.push(generateTicket());
+    }
+
+    function createTicketElement(ticket) {
+      const div = document.createElement('div');
+      div.className = 'ticket';
+      div.textContent = ticket;
+      return div;
+    }
+
+    function updateQueueTicketsDisplay() {
+      const container = document.getElementById('queueTickets');
+      container.innerHTML = '';
+      queueTickets.forEach(ticket => {
+        container.appendChild(createTicketElement(ticket));
+      });
+      document.getElementById('nextTicket').textContent = queueTickets[0] || '--';
+    }
+
+    function updateAttendedTicketsDisplay() {
+      const container = document.getElementById('attendedTickets');
+      container.innerHTML = '';
+      attendedTickets.slice(0, 10).forEach(ticket => {
+        container.appendChild(createTicketElement(ticket));
+      });
+    }
+
+    document.getElementById('atenderBtn').addEventListener('click', function () {
+      if (queueTickets.length > 0) {
+        const ticket = queueTickets.shift();
+        attendedTickets.unshift(ticket);
+        document.getElementById('currentTicket').textContent = ticket;
+        updateQueueTicketsDisplay();
+        updateAttendedTicketsDisplay();
+      } else {
+        alert('Não há mais senhas na fila!');
+      }
+    });
+
+    document.addEventListener('DOMContentLoaded', function () {
+      updateQueueTicketsDisplay();
+      updateAttendedTicketsDisplay();
+    });
+  </script>
+</body>
+</html>
